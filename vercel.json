@@ -6,7 +6,7 @@
       "use": "@vercel/node"
     },
     {
-      "src": "client/package.json",
+      "src": "package.json",
       "use": "@vercel/static-build",
       "config": {
         "buildCommand": "npm run build",
@@ -17,11 +17,15 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "server/index.ts"
+      "dest": "/server/index.ts"
+    },
+    {
+      "src": "/(assets|images)/(.*)",
+      "dest": "/dist/$1/$2"
     },
     {
       "src": "/(.*)",
-      "dest": "client/dist/$1"
+      "dest": "/dist/index.html"
     }
   ]
 }
