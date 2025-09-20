@@ -73,16 +73,10 @@ app.use((req, res, next) => {
   // Other ports are firewalled. Default to 5000 if not specified.
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
-  // Start the server only in development mode
-  if (process.env.NODE_ENV !== 'production') {
     const port = parseInt(process.env.PORT || '5000', 10);
-    const host = 'localhost';
+  const host = process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost';
 
-    server.listen(port, host, () => {
-      log(`Server running in development mode on http://${host}:${port}`);
-    });
-  }
+  server.listen(port, host, () => {
+    log(`Server running in ${process.env.NODE_ENV} mode on http://${host}:${port}`);
+  });
 })();
-
-// Export the Express app for Vercel
-export default app;
