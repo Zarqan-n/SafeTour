@@ -2,9 +2,9 @@ services:
   - type: web
     name: safetour-server
     env: node
-    buildCommand: |
-      npm install
-      npm run build
+    runtime: node
+    nodeVersion: 18.x
+    buildCommand: npm install && npm run build
     startCommand: npm start
     envVars:
       - key: NODE_ENV
