@@ -8,6 +8,10 @@ export interface DisasterAlert {
   source: string;
   url?: string;
   publishedAt: string;
+  coordinates?: {
+    lat: number;
+    lng: number;
+  };
 }
 
 export interface Place {

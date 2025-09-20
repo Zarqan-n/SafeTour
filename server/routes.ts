@@ -13,36 +13,123 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const sampleAlerts = [
         {
           id: "1",
+          title: "Flash Flood Warning",
+          description: "Flash floods reported in local creeks and urban areas. Residents advised to avoid low-lying areas.",
+          severity: "high",
+          category: "flood",
+          location: "Local Area",
+          source: "Local Emergency Services",
+          url: "https://emergency-services.local/alerts/fl-2023-001",
+          publishedAt: new Date(Date.now() - 1 * 60 * 60 * 1000), // 1 hour ago
+          coordinates: {
+            lat: 37.7749,
+            lng: -122.4194
+          }
+        },
+        {
+          id: "2",
+          title: "Wildfire Alert",
+          description: "Brush fire spreading rapidly. Evacuation orders in place for nearby communities.",
+          severity: "critical",
+          category: "fire",
+          location: "Regional Park Area",
+          source: "Fire Department",
+          url: "https://fire-dept.local/alerts/wf-2023-002",
+          publishedAt: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
+          coordinates: {
+            lat: 37.8044,
+            lng: -122.2711
+          }
+        },
+        {
+          id: "3",
+          title: "Chemical Spill",
+          description: "Hazardous material spill on highway. Road closures in effect.",
+          severity: "high",
+          category: "hazmat",
+          location: "Highway Junction",
+          source: "Transportation Authority",
+          url: "https://transport.local/alerts/hz-2023-003",
+          publishedAt: new Date(Date.now() - 3 * 60 * 60 * 1000), // 3 hours ago
+          coordinates: {
+            lat: 37.7879,
+            lng: -122.3892
+          }
+        },
+        {
+          id: "4",
+          title: "Severe Thunderstorm",
+          description: "Strong winds and heavy rain expected. Potential for power outages.",
+          severity: "medium",
+          category: "storm",
+          location: "Metropolitan Area",
+          source: "Weather Service",
+          url: "https://weather.local/alerts/st-2023-004",
+          publishedAt: new Date(Date.now() - 4 * 60 * 60 * 1000), // 4 hours ago
+          coordinates: {
+            lat: 37.7790,
+            lng: -122.4390
+          }
+        },
+        {
+          id: "5",
+          title: "Gas Leak",
+          description: "Natural gas leak detected. Area evacuation in progress.",
+          severity: "high",
+          category: "hazmat",
+          location: "Downtown District",
+          source: "Utility Company",
+          url: "https://utility.local/alerts/gl-2023-005",
+          publishedAt: new Date(Date.now() - 5 * 60 * 60 * 1000), // 5 hours ago
+          coordinates: {
+            lat: 37.7694,
+            lng: -122.4862
+          }
+        },
+        {
+          id: "6",
           title: "Earthquake in Turkey",
           description: "Magnitude 7.2 earthquake strikes southeastern Turkey causing significant damage",
           severity: "high",
           category: "earthquake",
           location: "Turkey",
           source: "ReliefWeb",
-          url: "https://reliefweb.int/disaster/eq-2023-000001-tur",
-          publishedAt: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
+          url: "https://reliefweb.int/disaster/eq-2023-001",
+          publishedAt: new Date(Date.now() - 8 * 60 * 60 * 1000),
+          coordinates: {
+            lat: 37.7749,
+            lng: 35.4194
+          }
         },
         {
-          id: "2", 
+          id: "7",
           title: "Tropical Cyclone in Philippines",
-          description: "Category 3 typhoon making landfall in northern Philippines with high winds and heavy rainfall",
+          description: "Category 3 typhoon making landfall with high winds and heavy rainfall",
           severity: "critical",
           category: "cyclone",
-          location: "Philippines", 
+          location: "Philippines",
           source: "ReliefWeb",
-          url: "https://reliefweb.int/disaster/tc-2023-000002-phl",
-          publishedAt: new Date(Date.now() - 6 * 60 * 60 * 1000), // 6 hours ago
+          url: "https://reliefweb.int/disaster/tc-2023-002",
+          publishedAt: new Date(Date.now() - 12 * 60 * 60 * 1000),
+          coordinates: {
+            lat: 14.5995,
+            lng: 120.9842
+          }
         },
         {
-          id: "3",
-          title: "Flooding in Bangladesh",
-          description: "Monsoon floods affect thousands in northern districts of Bangladesh",
+          id: "8",
+          title: "Volcanic Activity",
+          description: "Increased volcanic activity detected. Alert level raised.",
           severity: "medium",
-          category: "flood",
-          location: "Bangladesh",
-          source: "ReliefWeb", 
-          url: "https://reliefweb.int/disaster/fl-2023-000003-bgd",
-          publishedAt: new Date(Date.now() - 12 * 60 * 60 * 1000), // 12 hours ago
+          category: "volcano",
+          location: "Mount Region",
+          source: "Geological Survey",
+          url: "https://geology.local/alerts/va-2023-006",
+          publishedAt: new Date(Date.now() - 6 * 60 * 60 * 1000), // 6 hours ago
+          coordinates: {
+            lat: 37.7558,
+            lng: -122.4449
+          }
         }
       ];
 

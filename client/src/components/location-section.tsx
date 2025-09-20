@@ -57,14 +57,18 @@ export default function LocationSection({
 
   const searchMutation = useMutation({
     mutationFn: async (params: { latitude: number; longitude: number; radius: number; category: string; address?: string }) => {
-      const response = await apiRequest("POST", "/api/places/search", params);
-      return response.json();
+      const categories = ["hospital", "pharmacy", "lodging", "restaurant"];
+      const promises = categories.map(category =>
+        apiRequest("POST", "/api/places/search", { ...params, category }).then(res => res.json())
+      );
+      const results = await Promise.all(promises);
+      return results.flat();
     },
     onSuccess: (places: Place[]) => {
       onSearch(places);
       toast({
         title: "Search completed",
-        description: `Found ${places.length} ${selectedCategory}s nearby`,
+        description: `Found ${places.length} places nearby`,
       });
     },
     onError: (error) => {
@@ -73,6 +77,7 @@ export default function LocationSection({
         description: "Could not search for nearby places",
         variant: "destructive",
       });
+      console.error("Search error:", error);
     },
   });
 
