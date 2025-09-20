@@ -4,9 +4,11 @@ services:
     env: node
     runtime: node
     nodeVersion: 18.x
-    buildCommand: npm install && npm run build
+    buildCommand: npm install && npm i -g vite && npm run build
     startCommand: npm start
     envVars:
       - key: NODE_ENV
         value: production
+      - key: PATH
+        value: /opt/render/project/node_modules/.bin:$PATH
     autoDeploy: true

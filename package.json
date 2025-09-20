@@ -5,12 +5,14 @@
   "license": "MIT",
   "scripts": {
     "dev": "concurrently \"cross-env NODE_ENV=development tsx server/index.ts\" \"vite\"",
-    "build": "npm install -D typescript && vite build && tsc -p tsconfig.server.json",
+    "build": "npx vite build && tsc -p tsconfig.server.json",
     "start": "cross-env NODE_ENV=production node dist/server/index.js",
     "check": "tsc",
     "db:push": "drizzle-kit push"
   },
   "dependencies": {
+    "vite": "^5.4.20",
+    "typescript": "5.6.3",
     "@hookform/resolvers": "^3.10.0",
     "@jridgewell/trace-mapping": "^0.3.25",
     "@neondatabase/serverless": "^0.10.4",
