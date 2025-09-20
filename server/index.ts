@@ -13,7 +13,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: process.env.NODE_ENV === 'production' ? 'https://safe-tour.vercel.app' : 'http://localhost:3000',
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
@@ -60,23 +63,16 @@ app.use((req, res, next) => {
     throw err;
   });
 
-  // Handle client-side routing by serving index.html for all non-API routes
-  if (process.env.NODE_ENV === 'production') {
-    app.get('*', (req, res) => {
-      if (!req.path.startsWith('/api')) {
-        res.sendFile(path.join(__dirname, '../client/dist/index.html'));
-      }
+  // Only start the server in development mode
+  if (process.env.NODE_ENV !== 'production') {
+    const port = parseInt(process.env.PORT || '5000', 10);
+    const host = 'localhost';
+
+    server.listen(port, host, () => {
+      log(`Server running in development mode on http://${host}:${port}`);
     });
   }
 
-  // ALWAYS serve the app on the port specified in the environment variable PORT
-  // Other ports are firewalled. Default to 5000 if not specified.
-  // this serves both the API and the client.
-  // It is the only port that is not firewalled.
-    const port = parseInt(process.env.PORT || '5000', 10);
-  const host = process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost';
-
-  server.listen(port, host, () => {
-    log(`Server running in ${process.env.NODE_ENV} mode on http://${host}:${port}`);
-  });
+  // Export the Express app for Vercel
+  export default app;
 })();
