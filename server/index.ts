@@ -14,7 +14,7 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' ? 'https://safe-tour.vercel.app' : 'http://localhost:3000',
+  origin: '*',
   credentials: true
 }));
 app.use(express.json());
