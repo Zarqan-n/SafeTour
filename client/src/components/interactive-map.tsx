@@ -129,9 +129,11 @@ export default function InteractiveMap({
       markersRef.current.push(userMarker);
     }
 
-    // Add place markers
-    places.forEach((place, index) => {
-      const marker = new window.google.maps.Marker({
+    // Add place markers for selected category only
+    places
+      .filter(place => place.category === selectedCategory)
+      .forEach((place, index) => {
+        const marker = new window.google.maps.Marker({
         position: { lat: place.latitude, lng: place.longitude },
         map: mapInstanceRef.current,
         title: place.name,

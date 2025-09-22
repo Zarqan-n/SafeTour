@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -18,6 +18,7 @@ interface LocationSectionProps {
   onSearch: (places: Place[]) => void;
   onSearchStart: () => void;
   selectedCategory: PlaceCategory;
+  searchRef: React.MutableRefObject<((location: LocationData, radius: number, category: PlaceCategory) => void) | null>;
 }
 
 export default function LocationSection({
@@ -28,6 +29,7 @@ export default function LocationSection({
   onSearch,
   onSearchStart,
   selectedCategory,
+  searchRef,
 }: LocationSectionProps) {
   const [locationInput, setLocationInput] = useState("");
   const [isDetecting, setIsDetecting] = useState(false);
@@ -55,14 +57,24 @@ export default function LocationSection({
     },
   });
 
+  // Store search function in ref for external use
+  useEffect(() => {
+    searchRef.current = (location: LocationData, radius: number, category: PlaceCategory) => {
+      onSearchStart();
+      searchMutation.mutate({
+        latitude: location.latitude,
+        longitude: location.longitude,
+        radius: radius,
+        category: category,
+        address: location.formattedAddress,
+      });
+    };
+  }, []);
+
   const searchMutation = useMutation({
     mutationFn: async (params: { latitude: number; longitude: number; radius: number; category: string; address?: string }) => {
-      const categories = ["hospital", "pharmacy", "lodging", "restaurant"];
-      const promises = categories.map(category =>
-        apiRequest("POST", "/api/places/search", { ...params, category }).then(res => res.json())
-      );
-      const results = await Promise.all(promises);
-      return results.flat();
+      const response = await apiRequest("POST", "/api/places/search", params);
+      return response.json();
     },
     onSuccess: (places: Place[]) => {
       onSearch(places);

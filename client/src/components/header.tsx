@@ -32,11 +32,11 @@ export default function Header() {
               Alerts
             </a>
             <a 
-              href="/places" 
+              href="/sos" 
               className="text-muted-foreground hover:text-primary transition-colors"
-              data-testid="nav-places"
+              data-testid="nav-sos"
             >
-              Places
+              SOS
             </a>
             <a 
               href="/help" 

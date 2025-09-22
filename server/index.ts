@@ -55,24 +55,27 @@ app.use((req, res, next) => {
 (async () => {
   const server = await registerRoutes(app);
 
+  // Serve static files from client/dist
+  const clientDistPath = path.join(process.cwd(), 'client/dist');
+  app.use(express.static(clientDistPath));
+  
+  // Handle client-side routing
+  app.get('*', (_req, res) => {
+    res.sendFile(path.join(clientDistPath, 'index.html'));
+  });
+
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
 
+    console.error('[Error]:', err);
     res.status(status).json({ message });
-    throw err;
   });
 
-  // Only start the server in development mode
-  if (process.env.NODE_ENV !== 'production') {
-    const port = parseInt(process.env.PORT || '5000', 10);
-    const host = 'localhost';
+  const port = parseInt(process.env.PORT || '5000', 10);
+  const host = process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost';
 
-    server.listen(port, host, () => {
-      log(`Server running in development mode on http://${host}:${port}`);
-    });
-  }
-
-  // Export the Express app for Vercel
-  export default app;
+  server.listen(port, host, () => {
+    log(`Server running in ${process.env.NODE_ENV} mode on http://${host}:${port}`);
+  });
 })();

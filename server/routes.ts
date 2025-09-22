@@ -143,7 +143,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Places Search API
   app.post("/api/places/search", async (req, res) => {
     try {
-      const { latitude, longitude, radius = 5000, category } = req.body;
+      const { latitude, longitude, radius = 5000, category, limit } = req.body;
 
       if (!latitude || !longitude) {
         return res.status(400).json({ error: "Latitude and longitude are required" });
@@ -165,21 +165,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const placeType = typeMapping[category] || "hospital";
 
-      // Search using Google Places API Nearby Search
-      const placesResponse = await axios.get("https://maps.googleapis.com/maps/api/place/nearbysearch/json", {
+      // Function to fetch all results using pagination
+      async function getAllPlaces(initialResponse: any): Promise<any[]> {
+        let results = [...initialResponse.data.results];
+        let nextPageToken = initialResponse.data.next_page_token;
+
+        while (nextPageToken) {
+          // Google requires a short delay before using the next_page_token
+          await new Promise(resolve => setTimeout(resolve, 2000));
+
+          const nextResponse = await axios.get("https://maps.googleapis.com/maps/api/place/nearbysearch/json", {
+            params: {
+              pagetoken: nextPageToken,
+              key: apiKey
+            }
+          });
+
+          if (nextResponse.data.status !== "OK" && nextResponse.data.status !== "ZERO_RESULTS") {
+            break;
+          }
+
+          results = [...results, ...nextResponse.data.results];
+          nextPageToken = nextResponse.data.next_page_token;
+        }
+
+        return results;
+      }
+
+      // Initial search using Google Places API Nearby Search
+      const initialResponse = await axios.get("https://maps.googleapis.com/maps/api/place/nearbysearch/json", {
         params: {
           location: `${latitude},${longitude}`,
           radius: radius,
           type: placeType,
-          key: apiKey
+          rankby: limit === 1 ? 'distance' : undefined, // Use distance-based ranking for nearest place
+          key: apiKey,
+          ...(limit !== 1 && { radius }) // Include radius only when not searching for nearest
         }
       });
 
-      if (placesResponse.data.status !== "OK" && placesResponse.data.status !== "ZERO_RESULTS") {
-        throw new Error(`Google Places API error: ${placesResponse.data.status}`);
+      if (initialResponse.data.status !== "OK" && initialResponse.data.status !== "ZERO_RESULTS") {
+        throw new Error(`Google Places API error: ${initialResponse.data.status}`);
       }
 
-      const places = placesResponse.data.results.map((place: any) => ({
+      let allResults = limit === 1 
+        ? initialResponse.data.results.slice(0, 1) // Take only the first result for nearest search
+        : await getAllPlaces(initialResponse);
+
+      const places = allResults.map((place: any) => ({
         placeId: place.place_id,
         name: place.name,
         address: place.vicinity || place.formatted_address || "Address not available",
