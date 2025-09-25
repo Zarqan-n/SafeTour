@@ -1,12 +1,12 @@
 // Emergency Contact Types
 export type EmergencyContact = {
-  id: string;
-  userId: string;
+  id?: string;
+  userId?: string;
   name: string;
   phone: string;
-  email: string;
+  email?: string;
   relationship: string;
-  notificationPreference: 'sms' | 'email' | 'both';
+  notificationPreference?: 'sms' | 'email' | 'both';
 };
 
 // SOS Alert Types

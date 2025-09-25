@@ -33,7 +33,7 @@ import { EmergencyContact } from '@shared/types';
 const contactFormSchema = z.object({
   name: z.string().min(2, 'Name is required'),
   phone: z.string().min(10, 'Valid phone number is required'),
-  email: z.string().email('Valid email is required'),
+  email: z.string().email('Valid email is required').optional(),
   relationship: z.string().min(2, 'Relationship is required'),
   notificationPreference: z.enum(['sms', 'email', 'both']),
 });

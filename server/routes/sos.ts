@@ -3,10 +3,92 @@ import { sendSMS } from './utils/sms';
 import { sendEmail } from './utils/email';
 import { db } from './db';
 import { SOSAlert, EmergencyContact } from '@shared/types';
+import fs from 'fs/promises';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const router = express.Router();
 
 // Store SOS alert and notify contacts/authorities
+// Get emergency contacts
+router.get('/contacts', async (req, res) => {
+  try {
+    const contactsPath = path.join(__dirname, '../data/contacts.json');
+    let contacts: EmergencyContact[] = [];
+    
+    try {
+      const data = await fs.readFile(contactsPath, 'utf-8');
+      contacts = JSON.parse(data);
+    } catch (err) {
+      // File doesn't exist or is invalid, return empty array
+      console.log('No contacts file found');
+    }
+    
+    res.json(contacts);
+  } catch (error) {
+    console.error('Error fetching contacts:', error);
+    res.status(500).json({ error: 'Failed to fetch contacts' });
+  }
+});
+
+// Save new emergency contact
+router.post('/contacts', async (req, res) => {
+  try {
+    console.log('Received contact data:', req.body); // Debug log
+
+    const { name, phone, email, relationship, notificationPreference } = req.body;
+    
+    // Validate required fields
+    if (!name || !phone) {
+      console.log('Validation failed: missing required fields'); // Debug log
+      return res.status(400).json({ 
+        error: 'Name and phone number are required' 
+      });
+    }
+
+    // Create contact object
+    const contact: EmergencyContact = {
+      id: Date.now().toString(), // Simple ID generation
+      name,
+      phone,
+      email: email || '',
+      relationship: relationship || 'Other',
+      notificationPreference: notificationPreference || 'both'
+    };
+
+    // Write to temporary JSON file
+    const contactsPath = path.join(__dirname, '../data/contacts.json');
+    
+    // Ensure directory exists
+    await fs.mkdir(path.dirname(contactsPath), { recursive: true });
+    
+    // Read existing contacts
+    let contacts: EmergencyContact[] = [];
+    try {
+      const data = await fs.readFile(contactsPath, 'utf-8');
+      contacts = JSON.parse(data);
+    } catch (err) {
+      // File doesn't exist or is invalid, start with empty array
+      console.log('No existing contacts file, starting fresh');
+    }
+    
+    // Add new contact
+    contacts.push(contact);
+    
+    // Save back to file
+    await fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
+
+    console.log('Contact saved successfully:', contact); // Debug log
+    res.status(201).json(contact);
+  } catch (error) {
+    console.error('Error saving contact:', error);
+    res.status(500).json({ error: 'Failed to save contact' });
+  }
+});
+
 router.post('/alerts', async (req, res) => {
   try {
     const alert: SOSAlert = {
@@ -24,14 +106,14 @@ router.post('/alerts', async (req, res) => {
 
     // 3. Send notifications to emergency contacts
     await Promise.all(
-      contacts.map(async (contact) => {
+      contacts.map(async (contact: EmergencyContact) => {
         const message = generateAlertMessage(alert, contact);
 
         if (contact.notificationPreference === 'sms' || contact.notificationPreference === 'both') {
           await sendSMS(contact.phone, message);
         }
 
-        if (contact.notificationPreference === 'email' || contact.notificationPreference === 'both') {
+        if (contact.notificationPreference === 'email' || contact.notificationPreference === 'both' && contact.email) {
           await sendEmail(contact.email, 'SOS Alert', message);
         }
       })
